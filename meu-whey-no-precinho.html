@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Whey no Precinho</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #e6edf3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            border: 1px solid #30363d;
+            background-color: #161b22;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        .form-control, .form-check-input {
+            background-color: #0d1117;
+            border-color: #30363d;
+            color: #fff;
+        }
+        .form-control:focus {
+            background-color: #0d1117;
+            border-color: #58a6ff;
+            color: #fff;
+            box-shadow: 0 0 0 0.25rem rgba(88, 166, 255, 0.15);
+        }
+        .result-box {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        .badge-soy {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card p-4">
+                <h2 class="text-center mb-4 fw-bold text-primary">Meu Whey no Precinho <small class="text-muted fw-light">v1.0</small></h2>
+                
+                <form id="wheyForm">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label small text-secondary">Peso da Dose (g)</label>
+                            <input type="number" id="doseWeight" class="form-control" placeholder="Ex: 50" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-secondary">Prot. por Dose (g)</label>
+                            <input type="number" id="protPerDose" class="form-control" placeholder="Ex: 32" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-secondary">Peso Pacote (g)</label>
+                            <input type="number" id="pkgWeight" class="form-control" placeholder="Ex: 1000" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-secondary">Preço Pacote (R$)</label>
+                            <input type="number" step="0.01" id="pkgPrice" class="form-control" placeholder="Ex: 90.00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mt-4">
+                        <input class="form-check-input" type="checkbox" id="noSoy" checked>
+                        <label class="form-check-label" for="noSoy">Livre de Soja?</label>
+                    </div>
+
+                    <hr class="my-4 border-secondary">
+
+                    <div id="resultArea" class="result-box p-3 text-center d-none">
+                        <h5 id="costPerGramLabel" class="mb-1 fw-bold">R$ 0,00 / g</h5>
+                        <p id="verdictLabel" class="mb-0 small"></p>
+                    </div>
+                </form>
+            </div>
+            <p class="text-center mt-3 text-secondary small">Meta: Abaixo de R$ 0,15 por grama de proteína.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inputs = ['doseWeight', 'protPerDose', 'pkgWeight', 'pkgPrice', 'noSoy'];
+    const resultArea = document.getElementById('resultArea');
+    const costLabel = document.getElementById('costPerGramLabel');
+    const verdictLabel = document.getElementById('verdictLabel');
+
+    const calculate = () => {
+        const dose = parseFloat(document.getElementById('doseWeight').value);
+        const prot = parseFloat(document.getElementById('protPerDose').value);
+        const totalWeight = parseFloat(document.getElementById('pkgWeight').value);
+        const price = parseFloat(document.getElementById('pkgPrice').value);
+        const isSoyFree = document.getElementById('noSoy').checked;
+
+        if (dose && prot && totalWeight && price) {
+            const totalDoses = totalWeight / dose;
+            const totalProtInPkg = totalDoses * prot;
+            const costPerG = price / totalProtInPkg;
+
+            resultArea.classList.remove('d-none');
+            costLabel.innerText = `R$ ${costPerG.toFixed(4)} / g de proteína`;
+
+            let verdict = "";
+            let bgColor = "";
+            let textColor = "";
+
+            if (costPerG <= 0.15) {
+                if (isSoyFree) {
+                    verdict = "🔥 COMPRA CERTEIRA! Preço excelente e qualidade top.";
+                    bgColor = "#1a3d21"; // Dark Green
+                    textColor = "#71f28f";
+                } else {
+                    verdict = "⚠️ PREÇO BOM, MAS TEM SOJA. Verifique se vale a pena o blend.";
+                    bgColor = "#423210"; // Dark Yellow/Orange
+                    textColor = "#ffda6a";
+                }
+            } else {
+                verdict = "❌ NÃO VALE A PENA. Está acima do seu limite de R$ 0,15.";
+                bgColor = "#3d1a1a"; // Dark Red
+                textColor = "#ff8989";
+            }
+
+            resultArea.style.backgroundColor = bgColor;
+            resultArea.style.color = textColor;
+            verdictLabel.innerText = verdict;
+        } else {
+            resultArea.classList.add('d-none');
+        }
+    };
+
+    inputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', calculate);
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
